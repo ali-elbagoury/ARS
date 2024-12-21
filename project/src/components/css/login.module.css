@@ -3,6 +3,7 @@ body {
     background-image: url('C:\Users\user\Desktop\Netflix-Clone\Netflix\project\src\assets\netflix2.jpg');
     height: 950px;
     background-repeat: no-repeat;
+    width: 1900px;
 
 }
 
@@ -20,8 +21,7 @@ body {
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
-
-
+    width: 1900px
 }
 
 .navbar {
