@@ -5,6 +5,7 @@ body {
     background-repeat: no-repeat;
     width: 1900px;
 
+
 }
 
 .page {
@@ -84,6 +85,7 @@ body {
     font-size: xx-large;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 
 
 }
@@ -167,6 +169,7 @@ body {
     display: flex;
     flex-direction: column;
     background-color: rgb(0, 0, 0);
+    overflow: hidden;
 
 }
 
@@ -213,15 +216,9 @@ body {
     font-size: medium;
 }
 
-.caro {
 
-    max-width: 1500px;
-
-
-
-}
 
 .carocontain {
-    max-width: 1500px;
-    margin-left: 150px;
+    max-width: 1600px;
+    margin-left: 250px;
 }
