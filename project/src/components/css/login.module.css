@@ -17,7 +17,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 950px;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
@@ -117,7 +117,7 @@ body {
     background-color: rgb(19, 21, 20, 0.5);
     border: 0.1px solid #5e5e5e;
     height: 50px;
-    width: 420px;
+    min-width: 420px;
     padding-left: 10px;
     margin-left: 590px;
     font-weight: bolder;
@@ -128,9 +128,10 @@ body {
 }
 
 .getstarted {
+    max-height: 55px;
     background-color: #e50913;
     border-radius: 5px;
-    width: 200px;
+    min-width: 200px;
     border: 0px solid;
     cursor: pointer;
     color: white;
@@ -147,7 +148,51 @@ body {
 
 .container2 {
     height: 1000px;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(0, 0, 0);
 
-    background-color: black;
+}
 
+.trend {
+    margin-left: 300px;
+    color: white;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin-top: 50px;
+
+}
+
+.dropdown {
+    margin-top: 10px;
+    margin-left: 300px;
+
+}
+
+.dropmenu1 {
+    height: 40px;
+    width: 100px;
+    text-align: left;
+    border: 0.1px solid #5e5e5e;
+    border-radius: 5px;
+    margin-right: 15px;
+    background-color: rgb(16, 16, 16);
+    color: white;
+    padding-left: 10px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: medium;
+}
+
+.dropmenu2 {
+
+    height: 40px;
+    width: 125px;
+    text-align: left;
+    border: 0.1px solid #5e5e5e;
+    border-radius: 5px;
+    margin-right: 15px;
+    background-color: rgb(16, 16, 16);
+    color: white;
+    padding-left: 10px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: medium;
 }
