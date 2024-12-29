@@ -1,0 +1,14 @@
+.container {
+    height: 320px;
+    width: 300px;
+    border-radius: 10px;
+    background: linear-gradient(to bottom, #192145, #210e18);
+    margin-right: 15px;
+    color: aliceblue;
+    justify-items: center;
+    cursor: pointer;
+
+
+
+
+}

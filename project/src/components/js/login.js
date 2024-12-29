@@ -4,6 +4,7 @@ import netflix from '../../assets/net.png';
 import Card from './card'
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
+import Card2 from './cards2'
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -19,11 +20,11 @@ function Login() {
     superLargeDesktop: {
       // the naming can be any, depends on you.
       breakpoint: { max: 4000, min: 3000 },
-      items: 4.5
+      items: 5
     },
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
-      items: 4.5
+      items: 5
     },
     tablet: {
       breakpoint: { max: 1024, min: 464 },
@@ -35,7 +36,7 @@ function Login() {
     }
   };
 
- 
+
   return (
     <div className={styles.page}>
       <div className={styles.container1}>
@@ -48,8 +49,8 @@ function Login() {
           <button className={styles.signup}>Sign In</button>
         </div>
         <div className={styles.midsection}>
-          <h1 className={styles.text}>Unlimited Movies, TV</h1>
-          <h1 className={styles.text2}>shows, and more</h1>
+          <h1 className={styles.text}>Unlimited Movies,</h1>
+          <h1 className={styles.text2}>TV shows, and more</h1>
           <h1 className={styles.text3}>Starts at EGP 70. Cancel anytime.</h1>
           <h1 className={styles.text4}>
             Ready to watch? Enter your email to create or restart your membership.
@@ -77,18 +78,29 @@ function Login() {
           </select>
         </div>
         <div className={styles.carocontain}>
-        <Carousel responsive={responsive} className={styles.caro}>
-          <Card/>
-          <Card/>
-          <Card/>
-          <Card/>
-          <Card/>
-          <Card/>
-         
-       
+          <Carousel responsive={responsive} className={styles.caro}>
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+            <Card />
+           </Carousel>
           
-    </Carousel>
-    </div>
+
+
+
+        </div>
+        <h1 className={styles.more}>More Reasons to Join</h1>
+        <div className={styles.cards2}>
+          <Card2/>
+          <Card2/>
+          <Card2/>
+          <Card2/>
+
+
+        </div>
       </div>
     </div>
   );
