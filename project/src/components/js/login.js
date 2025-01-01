@@ -5,7 +5,7 @@ import Card from './card'
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import Card2 from './cards2'
-
+import Faqs from './faq.js'
 function Login() {
   const [email, setEmail] = useState('');
   const [isValid, setIsValid] = useState(true);
@@ -101,6 +101,18 @@ function Login() {
 
 
         </div>
+        <h1 className={styles.more}>Frequently Asked Questions</h1>
+        <div className={styles.faqlist}>
+          <Faqs/>
+          <Faqs/>
+          <Faqs/>
+          <Faqs/>
+          <Faqs/>
+          <Faqs/>
+
+        </div>
+      
+
       </div>
     </div>
   );
