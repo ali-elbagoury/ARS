@@ -1,40 +1,40 @@
-import React from 'react'
-import styles from '../css/home.module.css'
-import Poster from '../../assets/lacasa.jpg'
+import React, { useState } from 'react';
+import styles from '../css/home.module.css';
 import netflix from '../../assets/net.png';
-import search from '../../assets/search-icon.png'
-import user from '../../assets/user.jpg'
+import search from '../../assets/search-icon.png';
+import user from '../../assets/user.jpg';
 
-function home() {
-  return (<div className={styles.page}>
-     <div className={styles.container1}>
+function Home() {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  const toggle = (index) => {
+    setSelectedIndex(index );
+  };
+
+  const navItems = ['Home', 'Series', 'Films', 'Recently Added', 'My List'];
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.container1}>
         <div className={styles.container2}>
           <div className={styles.nav}>
-        <img src={netflix} className={styles.logo}></img>
-        <ul className={styles.navtext}>
-        <li className={styles.text}>Home</li>
-        <li className={styles.text}>Series</li>
-        <li className={styles.text}>Films</li>
-        <li className={styles.text}>Recently Added</li>
-        <li className={styles.text}>My List</li>
-        </ul>
+            <img src={netflix} className={styles.logo} alt="Netflix Logo" />
+            <ul className={styles.navtext}>
+              {navItems.map((text, index) => (
+                <li className={styles.text} onClick={() => toggle(index)} style={{ color: selectedIndex == index ? 'red' : 'white' }}>
+                  {text}
+                </li>
+              ))}
+            </ul>
             <div className={styles.icons}>
-                <img src={search} className={styles.search}></img>
-                <img src={user} className={styles.user}></img>
-             </div>
-
+              <img src={search} className={styles.search} alt="Search Icon" />
+              <img src={user} className={styles.user} alt="User Icon" />
+            </div>
           </div>
-      
-
         </div>
-     
-      
-
+      </div>
     </div>
-    </div>
-      
-  
-  )
+  );
 }
 
-export default home
+export default Home;
