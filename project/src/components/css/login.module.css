@@ -3,7 +3,7 @@
     background-image: url('C:\Users\user\Desktop\Netflix-Clone\Netflix\project\src\assets\netflix2.jpg');
     height: 3500px;
     background-repeat: no-repeat;
-    width: 1902px;
+    width: 100%;
 
 
 
@@ -25,7 +25,7 @@
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
-    width: 1902px;
+    width: 100%;
 
 
     overflow-y: hidden;
