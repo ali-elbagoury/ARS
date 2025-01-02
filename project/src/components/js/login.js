@@ -111,8 +111,82 @@ function Login() {
           <Faqs/>
 
         </div>
-      
 
+        <h1 className={styles.text5}>
+            Ready to watch? Enter your email to create or restart your membership.
+          </h1>
+          
+
+          <div className={styles.midsection2}>
+          <input type="text" id="email-field" placeholder="Email address" className={styles.box1} value={email} onChange={validateEmail} style={{ borderColor: isValid ? 'initial' : '#ad5456' }} />
+          <button className={styles.getstarted}>Get Started</button>
+          {!isValid && (
+            <p id="email-error" style={{ color: '#ad5456', display: "block", position: "absolute", marginLeft: '590px', marginTop: '55px' }}>Invalid email address</p>
+          )}
+        </div>
+
+        <div className={styles.footer}>
+
+          <div className={styles.part1}>
+          <ul className={styles.links}>
+          <li className={styles.link1}>Questions? Contact us.</li>
+          <li className={styles.link2}>FAQ</li>
+          <li className={styles.link3}>Investor Relations</li>
+          <li className={styles.link4}>Privacy</li>
+          <li className={styles.link5}>Speed Test</li>
+          <select className={styles.dropmenufooter}>
+            <option value="en">English</option>
+            <option value="ar">العربية</option>
+      
+          </select>
+         
+        
+
+          </ul>
+          <h1 className={styles.footerText}>Netflix Egypt</h1>
+          
+
+          </div>
+
+          <div className={styles.part2}>
+          <ul className={styles.links}>
+          <li className={styles.link2}>Help Center</li>
+          <li className={styles.link3}>Jobs</li>
+          <li className={styles.link4}>Cookie Preferences</li>
+          <li className={styles.link5}>Legal Notices</li>
+          
+
+          </ul>
+
+          </div>
+
+          
+          <div className={styles.part2}>
+          <ul className={styles.links}>
+          <li className={styles.link2}>Help Center</li>
+          <li className={styles.link3}>Jobs</li>
+          <li className={styles.link4}>Cookie Preferences</li>
+          <li className={styles.link5}>Legal Notices</li>
+          
+
+          </ul>
+
+          </div>
+
+          
+          <div className={styles.part2}>
+          <ul className={styles.links}>
+          <li className={styles.link2}>Help Center</li>
+          <li className={styles.link3}>Jobs</li>
+          <li className={styles.link4}>Cookie Preferences</li>
+          <li className={styles.link5}>Legal Notices</li>
+          
+
+          </ul>
+
+          </div>
+
+        </div>
       </div>
     </div>
   );
