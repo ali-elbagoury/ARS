@@ -42,6 +42,11 @@ function Home() {
           </div>
         </div>
       </div>
+      <div className={styles.list}>
+              <h1 className={styles.listTitle}>Now Playing Movies</h1>
+
+
+      </div>
     </div>
   );
 }
