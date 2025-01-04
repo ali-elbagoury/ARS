@@ -63,11 +63,12 @@ function Home() {
                   {text}
                 </li>
               ))}
-            </ul>
-            <div className={styles.icons}>
+                <div className={styles.icons}>
               <img src={search} className={styles.search} alt="Search Icon" />
               <img src={user} className={styles.user} alt="User Icon" />
             </div>
+            </ul>
+          
           </div>
 
           <h1 className={styles.title}>La Casa De Papel</h1>
