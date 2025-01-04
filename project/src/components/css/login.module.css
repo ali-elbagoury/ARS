@@ -332,3 +332,25 @@
     margin-top: -50px;
 
 }
+
+.customLeftArrow,
+.customRightArrow {
+    background-color: rgb(14, 14, 14, 0.5);
+    border: none;
+    color: rgb(255, 255, 255);
+    font-size: 24px;
+    padding: 10px;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.customLeftArrow {
+    left: 0;
+
+}
+
+.customRightArrow {
+    right: 0;
+}

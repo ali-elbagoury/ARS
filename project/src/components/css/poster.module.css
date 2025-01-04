@@ -1,0 +1,44 @@
+.contain {
+    background-color: white;
+    width: 200px;
+    border-radius: 10px;
+    transition: 0.3s ease-in-out;
+    margin-top: 30px;
+    cursor: pointer;
+    margin-right: 10px;
+    background-image: url(C:\Users\user\Desktop\Netflix-Clone\Netflix\project\src\assets\money-heist-netflix-144238.jpg);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 130px;
+
+
+
+}
+
+.contain:hover {
+
+
+    transform: scale(1.05);
+
+}
+
+.img {
+    width: 0px;
+}
+
+.text {
+    margin-top: 0px;
+    color: rgb(255, 255, 255);
+    font-size: x-large;
+    white-space: pre-line;
+    display: inline-block;
+    width: 200px;
+}
+
+.container {
+    overflow-wrap: break-word;
+    /* Modern equivalent for word-wrap */
+    margin-left: -50px;
+    width: 200px
+}

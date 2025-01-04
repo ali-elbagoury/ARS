@@ -1,6 +1,6 @@
 .contain {
     background-color: transparent;
-    width: 220px;
+    width: 200px;
     border-radius: 10px;
     transition: 0.3s ease-in-out;
     margin-top: 30px;
@@ -17,8 +17,9 @@
 }
 
 .img {
-    width: 220px;
-    border-radius: 10px
+    width: 200px;
+    border-radius: 10px;
+
 }
 
 .number {

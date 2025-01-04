@@ -35,6 +35,18 @@ function Login() {
       items: 3
     }
   };
+  const CustomLeftArrow = ({ onClick }) => (
+    <button className={styles.customLeftArrow} onClick={onClick}>
+      &#8249; {/* Left arrow symbol */}
+    </button>
+  );
+  
+  const CustomRightArrow = ({ onClick }) => (
+    <button className={styles.customRightArrow} onClick={onClick}>
+      &#8250; {/* Right arrow symbol */}
+    </button>
+  );
+  
 
 
   return (
@@ -78,7 +90,9 @@ function Login() {
           </select>
         </div>
         <div className={styles.carocontain}>
-          <Carousel responsive={responsive} className={styles.caro}>
+          <Carousel responsive={responsive} className={styles.caro}
+           customLeftArrow={<CustomLeftArrow />}
+           customRightArrow={<CustomRightArrow />}>
             <Card />
             <Card />
             <Card />
