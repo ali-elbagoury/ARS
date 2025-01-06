@@ -107,6 +107,8 @@ function Home() {
           <Card />
         </Carousel>
       </div>
+      <h1 className={styles.listTitle}>Now Playing Movies</h1>
+
     </div>
   );
 }
