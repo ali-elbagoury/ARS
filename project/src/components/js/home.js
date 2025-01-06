@@ -109,6 +109,29 @@ function Home() {
       </div>
       <h1 className={styles.listTitle}>Now Playing Movies</h1>
 
+      <Carousel
+          responsive={responsive}
+          className={styles.caro}
+          customLeftArrow={<CustomLeftArrow />}
+          customRightArrow={<CustomRightArrow />}
+          slidesToSlide={5}
+        >
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+        </Carousel>
+
     </div>
   );
 }
