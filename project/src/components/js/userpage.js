@@ -3,7 +3,11 @@ import styles from '../css/user.module.css'
 
 function userpage() {
   return (
-    <div>
+    <div className={styles.container}>
+        <div className={styles.user}>
+
+
+        </div>
       
     </div>
   )
