@@ -10,9 +10,9 @@ function userpage() {
   return (
     <div className={styles.container}>
         <div className={styles.user}>
-        <img src={user1}></img>
-        <img src={user2}></img>
-        <img src={user3}></img>
+        <img  className={styles.img1} src={user1}></img>
+        <img className={styles.img2} src={user2}></img>
+        <img  className={styles.img3} src={user3}></img>
 
         </div>
       
