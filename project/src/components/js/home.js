@@ -20,6 +20,18 @@ const CustomRightArrow = ({ onClick }) => (
 );
 
 function Home() {
+  const [films, setFilms] = useState([
+    { key: 1, name: 'Inception' },
+    { key: 2, name: 'Interstellar' },
+    { key: 3, name: 'The Matrix' },
+    { key: 4, name: 'The Dark Knight' },
+    { key: 5, name: 'Fight Club' },
+    { key: 6, name: 'Pulp Fiction' },
+    { key: 7, name: 'Forrest Gump' },
+    { key: 8, name: 'The Shawshank Redemption' },
+    { key: 9, name: 'The Godfather' },
+    { key: 10, name: 'The Lord of the Rings' }
+  ]);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
   const toggle = (index) => {
@@ -63,12 +75,11 @@ function Home() {
                   {text}
                 </li>
               ))}
-                <div className={styles.icons}>
-              <img src={search} className={styles.search} alt="Search Icon" />
-              <img src={user} className={styles.user} alt="User Icon" />
-            </div>
+              <div className={styles.icons}>
+                <img src={search} className={styles.search} alt="Search Icon" />
+                <img src={user} className={styles.user} alt="User Icon" />
+              </div>
             </ul>
-          
           </div>
 
           <h1 className={styles.title}>La Casa De Papel</h1>
@@ -91,47 +102,11 @@ function Home() {
           customRightArrow={<CustomRightArrow />}
           slidesToSlide={5}
         >
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
+          {films.map(film => (
+            <Card key={film.key} film={film} />
+          ))}
         </Carousel>
       </div>
-      <h1 className={styles.listTitle}>Now Playing Movies</h1>
-
-      <Carousel
-          responsive={responsive}
-          className={styles.caro}
-          customLeftArrow={<CustomLeftArrow />}
-          customRightArrow={<CustomRightArrow />}
-          slidesToSlide={5}
-        >
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-        </Carousel>
-
     </div>
   );
 }

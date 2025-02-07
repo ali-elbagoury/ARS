@@ -28,7 +28,7 @@
     font-weight: 900;
     -webkit-text-stroke: 2px rgb(255, 255, 255);
     font-size: 110px;
-    position: absolute;
-    margin-top: 180px;
+
+    margin-top: -150px;
     margin-left: -20px
 }

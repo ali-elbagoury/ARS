@@ -7,6 +7,16 @@ import 'react-multi-carousel/lib/styles.css';
 import Card2 from './cards2'
 import Faqs from './faq.js'
 function Login() {
+
+    const data = [
+      { key: 1, number: 1 },
+      { key: 2, number: 2 },
+      { key: 3, number: 3 },
+      { key: 4, number: 4 },
+      { key: 5, number: 5},
+      { key: 6, number: 6 },
+      { key: 7, number: 7 }
+    ];
   const [email, setEmail] = useState('');
   const [isValid, setIsValid] = useState(true);
 
@@ -93,13 +103,10 @@ function Login() {
           <Carousel responsive={responsive} className={styles.caro}
            customLeftArrow={<CustomLeftArrow />}
            customRightArrow={<CustomRightArrow />}>
-            <Card />
-            <Card />
-            <Card />
-            <Card />
-            <Card />
-            <Card />
-            <Card />
+           {data.map(item => (
+              <Card key={item.key} number={item.number} />
+            ))}
+            
            </Carousel>
           
 
