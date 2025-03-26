@@ -1,216 +1,317 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styles from '../css/login.module.css';
-import netflix from '../../assets/net.png';
-import Card from './card'
-import Carousel from 'react-multi-carousel';
-import 'react-multi-carousel/lib/styles.css';
-import Card2 from './cards2'
-import Faqs from './faq.js'
-function Login() {
+import backgroundImage from '../../assets/college.jpg'; // Make sure to add your image
 
-    const data = [
-      { key: 1, number: 1 },
-      { key: 2, number: 2 },
-      { key: 3, number: 3 },
-      { key: 4, number: 4 },
-      { key: 5, number: 5},
-      { key: 6, number: 6 },
-      { key: 7, number: 7 }
-    ];
+
+
+
+
+
+const Login = () => {
+  // Form states
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [isValid, setIsValid] = useState(true);
+  const [password, setPassword] = useState('');
+  const [regNumber, setRegNumber] = useState('');
+  const [isValidName, setIsValidName] = useState(true);
+  const [isValidEmail, setIsValidEmail] = useState(true);
+  const [isValidRegNumber, setIsValidRegNumber] = useState(true);
+  
+  // Photo capture states
+  const [photo, setPhoto] = useState(null);
+  const [cameraActive, setCameraActive] = useState(false);
+  
+  // Voice recording states
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioURL, setAudioURL] = useState('');
+  
+  // Refs
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
+  // Form submission handler
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Validate all fields
+    const isFormValid = isValidName && isValidEmail && isValidRegNumber && 
+                       name && email && regNumber && password;
+    
+    if (!isFormValid) {
+      if (!name) setIsValidName(false);
+      if (!isValidEmail || !email) setIsValidEmail(false);
+      if (!isValidRegNumber || !regNumber) setIsValidRegNumber(false);
+      alert("Please fill all fields correctly");
+      return;
+    }
+    
+    // Prepare form data
+    const formData = {
+      name,
+      email,
+      password,
+      regNumber,
+      photo,
+      audioURL
+    };
+    
+    console.log("Form submitted:", formData);
+    alert("Registration successful!");
+  };
+
+  // Name validation
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+    setIsValidName(value.length >= 2); // At least 2 characters
+  };
+
+  // Email validation
   const validateEmail = (e) => {
     const emailInput = e.target.value;
     setEmail(emailInput);
-    const emailRegex = /^[^\s@]+@[^\s@(0-9)]+\.[^\s@]+$/;
-    setIsValid(emailRegex.test(emailInput));
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setIsValidEmail(emailRegex.test(emailInput) || emailInput === '');
   };
-  const responsive = {
-    superLargeDesktop: {
-      // the naming can be any, depends on you.
-      breakpoint: { max: 4000, min: 3000 },
-      items: 5
-    },
-    desktop: {
-      breakpoint: { max: 3000, min: 1024 },
-      items: 5
-    },
-    tablet: {
-      breakpoint: { max: 1024, min: 464 },
-      items: 3
-    },
-    mobile: {
-      breakpoint: { max: 464, min: 0 },
-      items: 3
+
+  // Password handler
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
+
+  // Registration number handler
+  const handleRegNumberChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setRegNumber(value);
+      setIsValidRegNumber(value.length >= 6);
     }
   };
-  const CustomLeftArrow = ({ onClick }) => (
-    <button className={styles.customLeftArrow} onClick={onClick}>
-      &#8249; {/* Left arrow symbol */}
-    </button>
-  );
-  
-  const CustomRightArrow = ({ onClick }) => (
-    <button className={styles.customRightArrow} onClick={onClick}>
-      &#8250; {/* Right arrow symbol */}
-    </button>
-  );
-  
 
+  // Camera functions
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      videoRef.current.srcObject = stream;
+      videoRef.current.play();
+      setCameraActive(true);
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      alert("Could not access camera. Please check permissions.");
+    }
+  };
+
+  const takePhoto = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    
+    canvas.toBlob((blob) => {
+      setPhoto(URL.createObjectURL(blob));
+      stopCamera();
+    }, 'image/jpeg', 0.95);
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current?.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      setCameraActive(false);
+    }
+  };
+
+  // Voice recording functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      
+      mediaRecorderRef.current.ondataavailable = (e) => {
+        audioChunksRef.current.push(e.data);
+      };
+      
+      mediaRecorderRef.current.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current);
+        const audioUrl = URL.createObjectURL(audioBlob);
+        setAudioURL(audioUrl);
+      };
+      
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
+      alert("Could not access microphone. Please check permissions.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      setIsRecording(false);
+    }
+  };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container1}>
-        <div className={styles.navbar}>
-          <img className={styles.logo} src={netflix} alt="Netflix Logo" />
-          <select className={styles.dropmenu}>
-            <option value="en">English</option>
-            <option value="ar">العربية</option>
-          </select>
-          <button className={styles.signup}>Sign In</button>
-        </div>
-        <div className={styles.midsection}>
-          <h1 className={styles.text}>Unlimited Movies,</h1>
-          <h1 className={styles.text2}>TV shows, and more</h1>
-          <h1 className={styles.text3}>Starts at EGP 70. Cancel anytime.</h1>
-          <h1 className={styles.text4}>
-            Ready to watch? Enter your email to create or restart your membership.
-          </h1>
-        </div>
-
-        <div className={styles.midsection2}>
-          <input type="text" id="email-field" placeholder="Email address" className={styles.box} value={email} onChange={validateEmail} style={{ borderColor: isValid ? 'initial' : '#ad5456' }} />
-          <button className={styles.getstarted}>Get Started</button>
-          {!isValid && (
-            <p id="email-error" style={{ color: '#ad5456', display: "block", position: "absolute", marginLeft: '590px', marginTop: '55px' }}>Invalid email address</p>
-          )}
-        </div>
-      </div>
-      <div className={styles.container2}>
-        <h1 className={styles.trend}>Trending Now</h1>
-        <div className={styles.dropdown}>
-          <select className={styles.dropmenu1}>
-            <option value="en">Egypt</option>
-            <option value="ar">Global</option>
-          </select>
-          <select className={styles.dropmenu2}>
-            <option value="en">Movies</option>
-            <option value="ar">TV Shows</option>
-          </select>
-        </div>
-        <div className={styles.carocontain}>
-          <Carousel responsive={responsive} className={styles.caro}
-           customLeftArrow={<CustomLeftArrow />}
-           customRightArrow={<CustomRightArrow />}>
-           {data.map(item => (
-              <Card key={item.key} number={item.number} />
-            ))}
-            
-           </Carousel>
-          
-
-
-
-        </div>
-        <h1 className={styles.more}>More Reasons to Join</h1>
-        <div className={styles.cards2}>
-          <Card2/>
-          <Card2/>
-          <Card2/>
-          <Card2/>
-
-
-        </div>
-        <h1 className={styles.more}>Frequently Asked Questions</h1>
-        <div className={styles.faqlist}>
-          <Faqs/>
-          <Faqs/>
-          <Faqs/>
-          <Faqs/>
-          <Faqs/>
-          <Faqs/>
-
-        </div>
-
-        <h1 className={styles.text5}>
-            Ready to watch? Enter your email to create or restart your membership.
-          </h1>
-          
-
-          <div className={styles.midsection2}>
-          <input type="text" id="email-field" placeholder="Email address" className={styles.box1} value={email} onChange={validateEmail} style={{ borderColor: isValid ? 'initial' : '#ad5456' }} />
-          <button className={styles.getstarted}>Get Started</button>
-          {!isValid && (
-            <p id="email-error" style={{ color: '#ad5456', display: "block", position: "absolute", marginLeft: '590px', marginTop: '55px' }}>Invalid email address</p>
-          )}
-        </div>
-
-        <div className={styles.footer}>
-
-          <div className={styles.part1}>
-          <ul className={styles.links}>
-          <li className={styles.link1}>Questions? Contact us.</li>
-          <li className={styles.link2}>FAQ</li>
-          <li className={styles.link3}>Investor Relations</li>
-          <li className={styles.link4}>Privacy</li>
-          <li className={styles.link5}>Speed Test</li>
-          <select className={styles.dropmenufooter}>
-            <option value="en">English</option>
-            <option value="ar">العربية</option>
-      
-          </select>
-         
+    <div className={styles.loginContainer} style={{ backgroundImage: `url(${backgroundImage})` }}>
+      <div className={styles.transparentBox}>
+        <h2 className={styles.title}>Create Your Account</h2>
         
-
-          </ul>
-          <h1 className={styles.footerText}>Netflix Egypt</h1>
-          
-
+        <form onSubmit={handleSubmit} className={styles.form}>
+          {/* Name Field */}
+          <div className={styles.formGroup}>
+            <label htmlFor="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              placeholder="Enter your full name"
+              value={name}
+              onChange={handleNameChange}
+              className={`${styles.input} ${!isValidName ? styles.error : ''}`}
+              required
+            />
+            {!isValidName && (
+              <span className={styles.errorMessage}>
+                {name ? 'Name must be at least 2 characters' : 'Name is required'}
+              </span>
+            )}
           </div>
 
-          <div className={styles.part2}>
-          <ul className={styles.links}>
-          <li className={styles.link2}>Help Center</li>
-          <li className={styles.link3}>Jobs</li>
-          <li className={styles.link4}>Cookie Preferences</li>
-          <li className={styles.link5}>Legal Notices</li>
-          
-
-          </ul>
-
+          {/* Registration Number Field */}
+          <div className={styles.formGroup}>
+            <label htmlFor="regNumber">Registration Number</label>
+            <input
+              type="text"
+              id="regNumber"
+              placeholder="Enter registration number (numbers only)"
+              value={regNumber}
+              onChange={handleRegNumberChange}
+              className={`${styles.input} ${!isValidRegNumber ? styles.error : ''}`}
+              required
+              pattern="\d*"
+              inputMode="numeric"
+            />
+            {!isValidRegNumber && (
+              <span className={styles.errorMessage}>
+                {regNumber ? 'Must be at least 6 digits' : 'Registration number is required'}
+              </span>
+            )}
           </div>
 
-          
-          <div className={styles.part2}>
-          <ul className={styles.links}>
-          <li className={styles.link2}>Help Center</li>
-          <li className={styles.link3}>Jobs</li>
-          <li className={styles.link4}>Cookie Preferences</li>
-          <li className={styles.link5}>Legal Notices</li>
-          
-
-          </ul>
-
+          {/* Email Field */}
+          <div className={styles.formGroup}>
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={validateEmail}
+              className={`${styles.input} ${!isValidEmail ? styles.error : ''}`}
+              required
+            />
+            {!isValidEmail && (
+              <span className={styles.errorMessage}>Please enter a valid email</span>
+            )}
           </div>
 
-          
-          <div className={styles.part2}>
-          <ul className={styles.links}>
-          <li className={styles.link2}>Help Center</li>
-          <li className={styles.link3}>Jobs</li>
-          <li className={styles.link4}>Cookie Preferences</li>
-          <li className={styles.link5}>Legal Notices</li>
-          
-
-          </ul>
-
+          {/* Password Field */}
+          <div className={styles.formGroup}>
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Create a password"
+              value={password}
+              onChange={handlePasswordChange}
+              className={styles.input}
+              required
+              minLength="6"
+            />
           </div>
 
-        </div>
+          {/* Photo Section */}
+          <div className={styles.mediaSection}>
+            <div className={styles.photoContainer}>
+              <h3 className={styles.sectionTitle}>Profile Photo</h3>
+              <div className={styles.mediaPreview}>
+                {photo ? (
+                  <img src={photo} alt="Captured" className={styles.previewImage} />
+                ) : (
+                  <video 
+                    ref={videoRef} 
+                    className={styles.previewVideo}
+                    style={{ display: cameraActive ? 'block' : 'none' }}
+                  />
+                )}
+                {!photo && !cameraActive && (
+                  <div className={styles.placeholder}>Camera inactive</div>
+                )}
+              </div>
+              <canvas ref={canvasRef} style={{ display: 'none' }} />
+              <div className={styles.buttonColumn}>
+                {!photo ? (
+                  <>
+                    {!cameraActive ? (
+                      <button type="button" onClick={startCamera} className={styles.mediaButton}>
+                        Start Camera
+                      </button>
+                    ) : (
+                      <button type="button" onClick={takePhoto} className={styles.mediaButton}>
+                        Take Photo
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <button type="button" onClick={() => setPhoto(null)} className={styles.mediaButton}>
+                    Retake Photo
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Voice Recording Section */}
+            <div className={styles.voiceContainer}>
+              <h3 className={styles.sectionTitle}>Voice Verification</h3>
+              <div className={styles.mediaPreview}>
+                {audioURL ? (
+                  <audio controls src={audioURL} className={styles.audioPlayer} />
+                ) : (
+                  <div className={styles.placeholder}>
+                    {isRecording ? 'Recording...' : 'No recording'}
+                  </div>
+                )}
+              </div>
+              <div className={styles.buttonColumn}>
+                {!isRecording ? (
+                  <button type="button" onClick={startRecording} className={styles.mediaButton}>
+                    Start Recording
+                  </button>
+                ) : (
+                  <button type="button" onClick={stopRecording} className={styles.mediaButton}>
+                    Stop Recording
+                  </button>
+                )}
+                {audioURL && (
+                  <button type="button" onClick={() => setAudioURL('')} className={styles.mediaButton}>
+                    Re-record
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" className={styles.submitButton}>
+            Complete Registration
+          </button>
+        </form>
       </div>
     </div>
   );
-}
+};
 
 export default Login;
