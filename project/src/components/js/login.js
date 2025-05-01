@@ -1,11 +1,6 @@
 import React, { useState, useRef } from 'react';
 import styles from '../css/login.module.css';
-import backgroundImage from '../../assets/college.jpg'; // Make sure to add your image
-
-
-
-
-
+import backgroundImage from '../../assets/college.jpg';
 
 const Login = () => {
   // Form states
@@ -17,58 +12,31 @@ const Login = () => {
   const [isValidEmail, setIsValidEmail] = useState(true);
   const [isValidRegNumber, setIsValidRegNumber] = useState(true);
   
-  // Photo capture states
+  // Media states
   const [photo, setPhoto] = useState(null);
   const [cameraActive, setCameraActive] = useState(false);
-  
-  // Voice recording states
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState('');
   
+  // Submission states
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
   // Refs
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-  // Form submission handler
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Validate all fields
-    const isFormValid = isValidName && isValidEmail && isValidRegNumber && 
-                       name && email && regNumber && password;
-    
-    if (!isFormValid) {
-      if (!name) setIsValidName(false);
-      if (!isValidEmail || !email) setIsValidEmail(false);
-      if (!isValidRegNumber || !regNumber) setIsValidRegNumber(false);
-      alert("Please fill all fields correctly");
-      return;
-    }
-    
-    // Prepare form data
-    const formData = {
-      name,
-      email,
-      password,
-      regNumber,
-      photo,
-      audioURL
-    };
-    
-    console.log("Form submitted:", formData);
-    alert("Registration successful!");
-  };
-
-  // Name validation
+  // Validations
   const handleNameChange = (e) => {
     const value = e.target.value;
     setName(value);
-    setIsValidName(value.length >= 2); // At least 2 characters
+    setIsValidName(value.length >= 2);
   };
 
-  // Email validation
   const validateEmail = (e) => {
     const emailInput = e.target.value;
     setEmail(emailInput);
@@ -76,12 +44,10 @@ const Login = () => {
     setIsValidEmail(emailRegex.test(emailInput) || emailInput === '');
   };
 
-  // Password handler
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
   };
 
-  // Registration number handler
   const handleRegNumberChange = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
@@ -90,7 +56,7 @@ const Login = () => {
     }
   };
 
-  // Camera functions
+  // Media handlers
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -98,8 +64,8 @@ const Login = () => {
       videoRef.current.play();
       setCameraActive(true);
     } catch (err) {
-      console.error("Error accessing camera:", err);
-      alert("Could not access camera. Please check permissions.");
+      console.error("Camera error:", err);
+      setSubmitError("Could not access camera. Please check permissions.");
     }
   };
 
@@ -123,7 +89,13 @@ const Login = () => {
     }
   };
 
-  // Voice recording functions
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setPhoto(URL.createObjectURL(file));
+    }
+  };
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -136,15 +108,14 @@ const Login = () => {
       
       mediaRecorderRef.current.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current);
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setAudioURL(audioUrl);
+        setAudioURL(URL.createObjectURL(audioBlob));
       };
       
       mediaRecorderRef.current.start();
       setIsRecording(true);
     } catch (err) {
-      console.error("Error accessing microphone:", err);
-      alert("Could not access microphone. Please check permissions.");
+      console.error("Microphone error:", err);
+      setSubmitError("Could not access microphone. Please check permissions.");
     }
   };
 
@@ -156,11 +127,90 @@ const Login = () => {
     }
   };
 
+  // Form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitError('');
+    setSubmitSuccess(false);
+
+    // Validate all fields
+    const isFormValid = isValidName && isValidEmail && isValidRegNumber && 
+                       name && email && regNumber && password;
+    
+    if (!isFormValid) {
+      if (!name) setIsValidName(false);
+      if (!isValidEmail || !email) setIsValidEmail(false);
+      if (!isValidRegNumber || !regNumber) setIsValidRegNumber(false);
+      setSubmitError("Please fill all fields correctly");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('regNumber', regNumber);
+
+      // Handle photo upload
+      if (photo) {
+        const photoBlob = await fetch(photo).then(r => r.blob());
+        if (photoBlob.size > 5 * 1024 * 1024) {
+          throw new Error("Photo must be less than 5MB");
+        }
+        formData.append('photo', photoBlob, 'profile.jpg');
+      }
+
+      // Handle audio upload
+      if (audioURL) {
+        const audioBlob = await fetch(audioURL).then(r => r.blob());
+        if (audioBlob.size > 10 * 1024 * 1024) {
+          throw new Error("Audio must be less than 10MB");
+        }
+        formData.append('voice', audioBlob, 'recording.webm');
+      }
+
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
+      }
+
+      // Reset form on success
+      setName('');
+      setEmail('');
+      setPassword('');
+      setRegNumber('');
+      setPhoto(null);
+      setAudioURL('');
+      setSubmitSuccess(true);
+    } catch (error) {
+      console.error("Registration error:", error);
+      setSubmitError(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className={styles.loginContainer} style={{ backgroundImage: `url(${backgroundImage})` }}>
       <div className={styles.transparentBox}>
         <h2 className={styles.title}>Create Your Account</h2>
         
+        {submitError && (
+          <div className={styles.errorMessage}>{submitError}</div>
+        )}
+        
+        {submitSuccess && (
+          <div className={styles.successMessage}>Registration successful!</div>
+        )}
+
         <form onSubmit={handleSubmit} className={styles.form}>
           {/* Name Field */}
           <div className={styles.formGroup}>
@@ -225,7 +275,7 @@ const Login = () => {
             <input
               type="password"
               id="password"
-              placeholder="Create a password"
+              placeholder="Create a password (min 6 characters)"
               value={password}
               onChange={handlePasswordChange}
               className={styles.input}
@@ -234,13 +284,14 @@ const Login = () => {
             />
           </div>
 
-          {/* Photo Section */}
+          {/* Media Sections */}
           <div className={styles.mediaSection}>
+            {/* Photo Section */}
             <div className={styles.photoContainer}>
               <h3 className={styles.sectionTitle}>Profile Photo</h3>
               <div className={styles.mediaPreview}>
                 {photo ? (
-                  <img src={photo} alt="Captured" className={styles.previewImage} />
+                  <img src={photo} alt="Profile preview" className={styles.previewImage} />
                 ) : (
                   <video 
                     ref={videoRef} 
@@ -249,7 +300,9 @@ const Login = () => {
                   />
                 )}
                 {!photo && !cameraActive && (
-                  <div className={styles.placeholder}>Camera inactive</div>
+                  <div className={styles.placeholder}>
+                    {isSubmitting ? 'Uploading...' : 'No photo selected'}
+                  </div>
                 )}
               </div>
               <canvas ref={canvasRef} style={{ display: 'none' }} />
@@ -257,18 +310,49 @@ const Login = () => {
                 {!photo ? (
                   <>
                     {!cameraActive ? (
-                      <button type="button" onClick={startCamera} className={styles.mediaButton}>
-                        Start Camera
-                      </button>
+                      <>
+                        <button 
+                          type="button" 
+                          onClick={startCamera} 
+                          className={styles.mediaButton}
+                          disabled={isSubmitting}
+                        >
+                          Use Camera
+                        </button>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          accept="image/*"
+                          onChange={handleFileUpload}
+                          style={{ display: 'none' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current.click()}
+                          className={styles.mediaButton}
+                          disabled={isSubmitting}
+                        >
+                          Upload Photo
+                        </button>
+                      </>
                     ) : (
-                      <button type="button" onClick={takePhoto} className={styles.mediaButton}>
+                      <button 
+                        type="button" 
+                        onClick={takePhoto} 
+                        className={styles.mediaButton}
+                      >
                         Take Photo
                       </button>
                     )}
                   </>
                 ) : (
-                  <button type="button" onClick={() => setPhoto(null)} className={styles.mediaButton}>
-                    Retake Photo
+                  <button 
+                    type="button" 
+                    onClick={() => setPhoto(null)} 
+                    className={styles.mediaButton}
+                    disabled={isSubmitting}
+                  >
+                    Change Photo
                   </button>
                 )}
               </div>
@@ -288,16 +372,30 @@ const Login = () => {
               </div>
               <div className={styles.buttonColumn}>
                 {!isRecording ? (
-                  <button type="button" onClick={startRecording} className={styles.mediaButton}>
+                  <button 
+                    type="button" 
+                    onClick={startRecording} 
+                    className={styles.mediaButton}
+                    disabled={isSubmitting}
+                  >
                     Start Recording
                   </button>
                 ) : (
-                  <button type="button" onClick={stopRecording} className={styles.mediaButton}>
+                  <button 
+                    type="button" 
+                    onClick={stopRecording} 
+                    className={styles.mediaButton}
+                  >
                     Stop Recording
                   </button>
                 )}
                 {audioURL && (
-                  <button type="button" onClick={() => setAudioURL('')} className={styles.mediaButton}>
+                  <button 
+                    type="button" 
+                    onClick={() => setAudioURL('')} 
+                    className={styles.mediaButton}
+                    disabled={isSubmitting}
+                  >
                     Re-record
                   </button>
                 )}
@@ -305,8 +403,19 @@ const Login = () => {
             </div>
           </div>
 
-          <button type="submit" className={styles.submitButton}>
-            Complete Registration
+          <button 
+            type="submit" 
+            className={styles.submitButton}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <span className={styles.spinner}></span>
+                Processing...
+              </>
+            ) : (
+              'Complete Registration'
+            )}
           </button>
         </form>
       </div>
