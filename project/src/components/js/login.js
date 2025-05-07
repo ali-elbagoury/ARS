@@ -14,8 +14,14 @@ const Login = () => {
   const [cameraPermission, setCameraPermission] = useState(null);
   const [microphonePermission, setMicrophonePermission] = useState(null);
 
-  // Media states
-  const [photos, setPhotos] = useState([]);
+  // Media states - now using individual states for each photo
+  const [photos, setPhotos] = useState({
+    photo1: null,
+    photo2: null,
+    photo3: null,
+    photo4: null,
+    photo5: null,
+  });
   const [cameraActive, setCameraActive] = useState(false);
   const [isRecording, setIsRecording] = useState({
     recording1: false,
@@ -148,9 +154,19 @@ const Login = () => {
     canvas.toBlob(
       (blob) => {
         const photoURL = URL.createObjectURL(blob);
-        setPhotos((prev) => [...prev, photoURL]);
+        // Find the first empty photo slot
+        const emptySlot = Object.entries(photos).find(
+          ([_, value]) => !value
+        )?.[0];
+        if (emptySlot) {
+          setPhotos((prev) => ({
+            ...prev,
+            [emptySlot]: photoURL,
+          }));
+        }
 
-        if (photos.length + 1 >= 5) {
+        // Stop camera if all photos are taken
+        if (Object.values(photos).filter(Boolean).length + 1 >= 5) {
           stopCamera();
         }
       },
@@ -248,19 +264,31 @@ const Login = () => {
   };
 
   const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files).slice(0, 5 - photos.length);
+    const files = Array.from(e.target.files);
+    const emptySlots = Object.entries(photos)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key)
+      .slice(0, files.length);
 
-    files.forEach((file) => {
+    emptySlots.forEach((slot, index) => {
+      const file = files[index];
       if (file && file.type.startsWith("image/")) {
         const photoURL = URL.createObjectURL(file);
-        setPhotos((prev) => [...prev, photoURL]);
+        setPhotos((prev) => ({
+          ...prev,
+          [slot]: photoURL,
+        }));
       }
     });
   };
 
-  const removePhoto = (index) => {
-    setPhotos((prev) => prev.filter((_, i) => i !== index));
+  const removePhoto = (photoId) => {
+    setPhotos((prev) => ({
+      ...prev,
+      [photoId]: null,
+    }));
   };
+
   const handleNameChange = (e) => {
     const value = e.target.value;
     setName(value);
@@ -279,7 +307,10 @@ const Login = () => {
     }
   };
 
-  // Form submission - updated for multiple photos
+  // Count how many photos have been uploaded
+  const photoCount = Object.values(photos).filter(Boolean).length;
+
+  // Form submission - updated for individual photos and voice samples
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError("");
@@ -297,7 +328,7 @@ const Login = () => {
     }
 
     // Validate photos
-    if (photos.length < 5) {
+    if (photoCount < 5) {
       setSubmitError("Please upload exactly 5 photos");
       return;
     }
@@ -310,27 +341,25 @@ const Login = () => {
       formData.append("password", password);
       formData.append("regNumber", regNumber);
 
-      // Handle photo uploads
-      for (let i = 0; i < photos.length; i++) {
-        const photoBlob = await fetch(photos[i]).then((r) => r.blob());
-        if (photoBlob.size > 5 * 1024 * 1024) {
-          throw new Error(`Photo ${i + 1} must be less than 5MB`);
+      // Handle photo uploads - each photo individually
+      for (const [photoId, photoURL] of Object.entries(photos)) {
+        if (photoURL) {
+          const photoBlob = await fetch(photoURL).then((r) => r.blob());
+          if (photoBlob.size > 5 * 1024 * 1024) {
+            throw new Error(`Photo ${photoId} must be less than 5MB`);
+          }
+          formData.append(photoId, photoBlob, `${photoId}.jpg`);
         }
-        formData.append(`photos`, photoBlob, `photo_${i}.jpg`);
       }
 
-      // Handle audio uploads
+      // Handle audio uploads - each recording individually
       for (const [recordingId, url] of Object.entries(audioURLs)) {
         if (url) {
           const audioBlob = await fetch(url).then((r) => r.blob());
           if (audioBlob.size > 10 * 1024 * 1024) {
             throw new Error(`Audio ${recordingId} must be less than 10MB`);
           }
-          formData.append(
-            `voice_${recordingId}`,
-            audioBlob,
-            `${recordingId}.webm`
-          );
+          formData.append(recordingId, audioBlob, `${recordingId}.webm`);
         }
       }
 
@@ -348,7 +377,13 @@ const Login = () => {
       setName("");
       setPassword("");
       setRegNumber("");
-      setPhotos([]);
+      setPhotos({
+        photo1: null,
+        photo2: null,
+        photo3: null,
+        photo4: null,
+        photo5: null,
+      });
       setAudioURLs({
         recording1: "",
         recording2: "",
@@ -443,10 +478,10 @@ const Login = () => {
 
           {/* Media Sections */}
           <div className={styles.mediaSection}>
-            {/* Photo Section - updated for multiple photos */}
+            {/* Photo Section - updated for individual photos */}
             <div className={styles.photoContainer}>
               <h3 className={styles.sectionTitle}>
-                Profile Photos ({photos.length}/5)
+                Profile Photos ({photoCount}/5)
               </h3>
               <h4>
                 Instructions: We're gonna need 5 images (all with a plain
@@ -456,37 +491,33 @@ const Login = () => {
 
               {/* Photo preview grid */}
               <div className={styles.photoGrid}>
-                {photos.map((photo, index) => (
-                  <div key={index} className={styles.photoPreviewItem}>
-                    <img
-                      src={photo}
-                      alt={`Profile preview ${index + 1}`}
-                      className={styles.previewImage}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removePhoto(index)}
-                      className={styles.removePhotoButton}
-                      disabled={isSubmitting}
-                    >
-                      ×
-                    </button>
+                {Object.entries(photos).map(([photoId, photoURL]) => (
+                  <div key={photoId} className={styles.photoPreviewItem}>
+                    {photoURL ? (
+                      <>
+                        <img
+                          src={photoURL}
+                          alt={`Profile preview ${photoId}`}
+                          className={styles.previewImage}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(photoId)}
+                          className={styles.removePhotoButton}
+                          disabled={isSubmitting}
+                        >
+                          ×
+                        </button>
+                      </>
+                    ) : (
+                      <div className={styles.photoEmptySlot}>
+                        {isSubmitting
+                          ? "Uploading..."
+                          : `Photo ${photoId.replace("photo", "")}`}
+                      </div>
+                    )}
                   </div>
                 ))}
-
-                {/* Empty slots */}
-                {Array(5 - photos.length)
-                  .fill()
-                  .map((_, index) => (
-                    <div
-                      key={`empty-${index}`}
-                      className={styles.photoEmptySlot}
-                    >
-                      {isSubmitting
-                        ? "Uploading..."
-                        : `Photo ${photos.length + index + 1}`}
-                    </div>
-                  ))}
               </div>
 
               {/* Camera preview */}
@@ -496,7 +527,7 @@ const Login = () => {
                   className={styles.previewVideo}
                   style={{ display: cameraActive ? "block" : "none" }}
                 />
-                {!cameraActive && photos.length < 5 && (
+                {!cameraActive && photoCount < 5 && (
                   <div className={styles.placeholder}>
                     Camera preview will appear here
                   </div>
@@ -514,7 +545,7 @@ const Login = () => {
 
               <canvas ref={canvasRef} style={{ display: "none" }} />
               <div className={styles.buttonColumn}>
-                {photos.length < 5 && (
+                {photoCount < 5 && (
                   <>
                     {!cameraActive ? (
                       <>
@@ -550,7 +581,7 @@ const Login = () => {
                         className={styles.mediaButton}
                         disabled={isSubmitting}
                       >
-                        Take Photo ({photos.length + 1}/5)
+                        Take Photo ({photoCount + 1}/5)
                       </button>
                     )}
                   </>
@@ -558,7 +589,7 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Voice Recording Sections (unchanged) */}
+            {/* Voice Recording Sections */}
             <div className={styles.voiceContainer}>
               <h3 className={styles.sectionTitle}>Voice Verification</h3>
 
@@ -729,7 +760,7 @@ const Login = () => {
           <button
             type="submit"
             className={styles.submitButton}
-            disabled={isSubmitting || photos.length < 5}
+            disabled={isSubmitting || photoCount < 5}
           >
             {isSubmitting ? (
               <>

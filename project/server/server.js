@@ -1,6 +1,11 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
-const { connectToDB, getDB, closeConnection, checkConnection } = require("./connect");
+const {
+  connectToDB,
+  getDB,
+  closeConnection,
+  checkConnection,
+} = require("./connect");
 const authRoutes = require("./routes/authRoutes");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -14,18 +19,22 @@ const PORT = process.env.PORT || 5000;
 // Middleware Setup
 // ======================
 app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
-}));
-app.use(morgan('dev'));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    credentials: true,
+  })
+);
+app.use(morgan("dev"));
 app.use(express.json());
 
 // Rate limiting
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
-}));
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+  })
+);
 
 // ======================
 // Database Middleware
@@ -52,23 +61,23 @@ app.use(async (req, res, next) => {
 app.use("/api/auth", authRoutes);
 
 // Health endpoint
-app.get('/health', async (req, res) => {
+app.get("/health", async (req, res) => {
   const dbStatus = await checkConnection();
   res.status(dbStatus ? 200 : 503).json({
-    status: dbStatus ? 'healthy' : 'unhealthy',
-    database: dbStatus ? 'connected' : 'disconnected'
+    status: dbStatus ? "healthy" : "unhealthy",
+    database: dbStatus ? "connected" : "disconnected",
   });
 });
 
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ error: "Internal server error" });
 });
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint not found' });
+  res.status(404).json({ error: "Endpoint not found" });
 });
 
 // ======================
@@ -77,22 +86,25 @@ app.use((req, res) => {
 async function startServer() {
   try {
     await connectToDB();
-    
+
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`🔗 MongoDB connected to: ${process.env.ATLAS_URI.split('@')[1]?.split('/')[0] || 'Atlas cluster'}`);
+      console.log(
+        `🔗 MongoDB connected to: ${
+          process.env.ATLAS_URI.split("@")[1]?.split("/")[0] || "Atlas cluster"
+        }`
+      );
     });
 
     // Graceful shutdown
-    process.on('SIGINT', async () => {
-      console.log('\n🛑 Shutting down gracefully...');
+    process.on("SIGINT", async () => {
+      console.log("\n🛑 Shutting down gracefully...");
       await closeConnection();
       server.close(() => {
-        console.log('🔴 Server terminated');
+        console.log("🔴 Server terminated");
         process.exit(0);
       });
     });
-
   } catch (error) {
     console.error("❌ Fatal startup error:", error.message);
     process.exit(1);

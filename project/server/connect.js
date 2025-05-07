@@ -4,13 +4,13 @@ require("dotenv").config();
 // Connection settings optimized for Atlas
 const options = {
   maxPoolSize: 10,
-  connectTimeoutMS: 10000,  // Increased timeout for Atlas
-  socketTimeoutMS: 45000,   // Increased socket timeout
+  connectTimeoutMS: 10000, // Increased timeout for Atlas
+  socketTimeoutMS: 45000, // Increased socket timeout
   serverSelectionTimeoutMS: 10000,
   retryWrites: true,
   retryReads: true,
-  ssl: true,               // Required for Atlas
-  tlsAllowInvalidCertificates: false
+  ssl: true, // Required for Atlas
+  tlsAllowInvalidCertificates: false,
 };
 
 let client;
@@ -27,11 +27,11 @@ async function connectToDB() {
 
     client = new MongoClient(process.env.ATLAS_URI, options);
     await client.connect();
-    
+
     // Verify connection
     await client.db("admin").command({ ping: 1 });
     dbInstance = client.db(); // Uses database from connection string
-    
+
     isConnected = true;
     console.log("✅ MongoDB Atlas connection established");
     return dbInstance;
@@ -78,5 +78,5 @@ module.exports = {
   connectToDB,
   getDB,
   closeConnection,
-  checkConnection
+  checkConnection,
 };
