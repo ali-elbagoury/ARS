@@ -30,10 +30,15 @@ async function connectToDB() {
 
     // Verify connection
     await client.db("admin").command({ ping: 1 });
-    dbInstance = client.db(); // Uses database from connection string
+
+    // Explicitly set the database name here
+    dbInstance = client.db(process.env.DB_NAME); // ← This is the key change
 
     isConnected = true;
-    console.log("✅ MongoDB Atlas connection established");
+    console.log(
+      "✅ MongoDB Atlas connection established to database:",
+      process.env.DB_NAME
+    );
     return dbInstance;
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error.message);
@@ -41,7 +46,6 @@ async function connectToDB() {
     throw error;
   }
 }
-
 function getDB() {
   if (!isConnected || !dbInstance) {
     throw new Error("Database not connected. Call connectToDB() first.");

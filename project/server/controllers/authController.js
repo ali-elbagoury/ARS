@@ -40,7 +40,7 @@ const upload = multer({
 const registerUser = async (req, res) => {
   try {
     const db = getDB();
-    const usersCollection = db.collection("users");
+    const usersCollection = db.collection("Students_Data");
 
     const { name, password, regNumber } = req.body;
 
